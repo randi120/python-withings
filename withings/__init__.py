@@ -109,11 +109,18 @@ class WithingsApi(object):
         r = self.client.request(method, '/'.join(url_parts), params=params)
         response = json.loads(r.content.decode())
         if response['status'] != 0:
-            raise Exception("Error code %s" % response['status'])
+            print r.url
+            print response
+            print url_parts
+            print params
+            raise Exception("Error code %s: %s." % (response['status'] , response['error']))
         return response.get('body', None)
 
     def get_user(self):
         return self.request('user', 'getbyuserid')
+
+    def get_intraday(self, **kwargs):
+        r = self.request('measure','getintradayactivity', params=kwargs, version='v2')
 
     def get_activities(self, **kwargs):
         r = self.request('measure', 'getactivity', params=kwargs, version='v2')
@@ -126,6 +133,10 @@ class WithingsApi(object):
 
     def get_sleep(self, **kwargs):
         r = self.request('sleep', 'get', params=kwargs, version='v2')
+        return WithingsSleep(r)
+
+    def get_sleep_summary(self, **kwargs):
+        r = self.request('sleep', 'getsummary', params=kwargs, version='v2')
         return WithingsSleep(r)
 
     def subscribe(self, callback_url, comment, appli=1):
